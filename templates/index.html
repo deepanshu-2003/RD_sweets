@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %}RD Sweets - Savor the Sweet Moments {% endblock %}
+
+{% block have %}{% include "header.html" %}{% endblock have %}
+
+{% block content %}
+    <!-- Section-->
+    {{status}}
+    <section class="py-5">
+        <div class="container px-4 px-lg-5 mt-5">
+            <div class="row gx-4 gx-lg-5 row-cols-2 row-cols-md-3 row-cols-xl-4 justify-content-center">
+
+                {% for prod in products %}
+                <div class="col mb-5">
+                    <div class="card h-100 d-flex flex-column">
+                        <!-- Product image-->
+                        <img class="card-img-top" src="{{ prod.image.url }}" alt="{{ prod.name }}" />
+                        <!-- Product details-->
+                        <div class="card-body p-4 flex-grow-1">
+                            <div class="text-center">
+                                <!-- Product name-->
+                                <h5 class="fw-bolder">{{ prod.name }}</h5>
+                                <h6 class="fw">{{ prod.description }}</h6>
+
+                                
+                            </div>
+                        </div>
+                        <!-- Product price-->
+                        <div class="price-and-button py-3">
+                            <h6 class="fs-6  text-center">Rs. {{ prod.price }}</h6>
+                        </div>
+                        <a class="btn btn-outline-dark justify-content-center m-auto px-5 mb-2" href="{% url 'product' prod.id %}">More</a>
+                    </div>
+                </div>
+                {% endfor %}
+
+            </div>
+        </div>
+    </section>
+{% endblock %}

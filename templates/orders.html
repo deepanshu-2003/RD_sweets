@@ -1,0 +1,91 @@
+<!-- orders.html -->
+
+{% extends "base.html" %}
+{% block title %}Orders{% endblock title %}
+
+{% block head %}
+<style>
+  .bg-purple {
+    background-color: #795592; /* Use any shade of purple you prefer */
+  }
+  .bg-red{
+    background-color:#BC1D1F;
+  }
+  .bg-custom{
+    background-color:#DCD399;
+  }
+  .amount {
+    color: green; /* Change color to green */
+    font-weight: bold; /* Make it bold */
+    font-size: 1.0em; /* Increase font size */
+  }
+</style>
+{% endblock head %}
+
+{% block content %}
+<div class="container">
+
+  <div class="row row-cols-1 row-cols-md-3 g-4">
+    {% for order in orders %}
+    <div class="col">
+      <div class="card h-100 shadow-sm">
+      {% if order.cancelled %}
+        <div class="card-header bg-red text-white">
+          {% elif order.status == 'Dilivered' %}
+          <div class="card-header text-white" style="background-color:green;">
+
+        {% else %}
+          <div class="card-header bg-purple text-white">
+        {% endif %}
+          <h5 class="mb-0">Order ID: #{{ order.order_id }}</h5>
+        </div>
+        <div class="card-body">
+          <h5 class="card-title text-center">{{order.items|length}} Items</h5>
+          <ul class="list-group">
+            {% for item in order.items %}
+            <li class="list-group-item">
+              <img src="{{ item.0.url }}" alt="{{ item.1 }}" style="max-width: 50px;" class="me-2">
+              {{ item.1 }} - {{ item.2 }} Kg
+            </li>
+            {% endfor %}
+          </ul>
+          <hr/>
+          <div class="row">
+            <div class="col">
+              <p style="margin:0;"><b>Order Date :</b> {{ order.order_date }}</p>
+              <p><b>Order Time :</b> {{ order.order_time }}</p>
+              <p><b>Delivered By :</b> {{ order.expected }}</p>
+              <p style="margin:0;"><b>Amount:</b> <span class="amount"> ₹ {{ order.amount }}</span></p>
+              <p><b>Payment:</b> {{ order.payment }}</p>
+              {% if order.cancelled %}
+              <p><b>Status: <span style="text-transform: uppercase;color:#BC1D1F;">{{ order.status }}</span></b></p>
+              {% elif order.status == 'Dilivered' %}
+              <p><b>Status: <span style="text-transform: uppercase;color:#267546;">{{ order.status }}</span></b></p>
+              {% else %}
+              <p><b>Status:</b> <span style="text-transform: uppercase;">{{ order.status }}</span></p>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+        <div class="card-footer bg-custom d-flex justify-content-end">
+          <a href="{% url "order_details" order.order_id%}" class="btn btn-success btn-sm" >More</a>
+          {% if order.cancelled == False and order.status != 'Dilivered'%}
+              <button class="btn btn-danger btn-sm ms-auto" onclick="cancelOrder({{ order.order_id }})">Cancel</button>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+</div>
+
+
+<script>
+  function cancelOrder(orderId) {
+    // Redirect to the cancel_order view with the order ID
+    window.location.href = "{% url 'order_cancel' %}?order_id=" + orderId;
+  }
+</script>
+
+{% endblock content %}

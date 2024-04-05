@@ -1,0 +1,114 @@
+<!-- orders.html -->
+
+{% extends "base.html" %}
+{% block title %}Orders{% endblock title %}
+
+{% block head %}
+    {{ block.super }}
+    <style>
+        /* Custom styles */
+        .section-title {
+            color: #333;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .card-header {
+            border-bottom: none;
+        }
+    </style>
+{% endblock head %}
+
+{% block content %}
+<div class="container">
+  <div class="card mt-5">
+    <div class="card-header bg-dark text-white">
+      <h3 class="mb-0 text-center">Order Details</h3>
+    </div>
+    <div class="card-body">
+      <div class="row">
+        <div class="col-md-6">
+          <h5 class="section-title text-center">Order Information</h5>
+          <hr class="my-4">
+          <div class="row mb-3">
+            <div class="col-4">
+              <p class="fw-bold">Order ID:</p>
+            </div>
+            <div class="col-8">
+              <p>#{{ order.order_id }}</p>
+            </div>
+          </div>
+          <div class="row mb-3">
+            <div class="col-4">
+              <p class="fw-bold">Ordered on :</p>
+            </div>
+            <div class="col-8">
+              <p>{{ order.order_date }} at {{order.order_time}}</p>
+            </div>
+          </div>
+          <div class="row mb-3">
+            <div class="col-4">
+              <p class="fw-bold">Expected Delivery:</p>
+            </div>
+            <div class="col-8">
+              <p>{{ order.expected }}</p>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-4">
+              <p class="fw-bold">Status:</p>
+            </div>
+            <div class="col-8">
+              <p>{{ order.status }}</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <h5 class="section-title text-center">Order Items</h5>
+          <hr class="my-4">
+          {% for item in order.items %}
+          <div class="row mb-3">
+            <div class="col-3">
+              <img src="{{ item.0.url }}" alt="{{ item.1 }}" class="img-fluid rounded">
+            </div>
+            <div class="col-6">
+              <p class="fw-bold">{{ item.1 }}</p>
+            </div>
+            <div class="col-3">
+              <p>{{ item.2 }} Kg</p>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      <hr class="my-4">
+      <div class="row">
+        <div class="col-md-6">
+          <h5 class="section-title text-center">Payment</h5>
+          <hr class="my-4">
+          <div class="row mb-3">
+            <div class="col-6">
+              <p class="fw-bold">Total Amount:</p>
+            </div>
+            <div class="col-6">
+              <p>₹{{ order.amount }}</p>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-6">
+              <p class="fw-bold">Payment Status:</p>
+            </div>
+            <div class="col-6">
+              <p>{{ order.payment }}</p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="col-md-6 text-md-end">
+          <a href="{% url "orders" %}" class="btn btn-secondary mt-4">Back</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}

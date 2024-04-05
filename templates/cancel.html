@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}Order Failed{% endblock title %}
+{% block head %}
+  <style>
+    .card {
+      border-radius: 20px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .card-title {
+      color: #333;
+    }
+
+    .badge {
+      background-color: #dc3545; /* Red color for error */
+    }
+
+    @media (max-width: 576px) {
+      .card {
+        padding: 20px;
+      }
+    }
+  </style>
+{% endblock head %}
+
+{% block content %}
+<div class="container-fluid">
+  <div class="row justify-content-center align-items-center">
+    <div class="col-md-8">
+      <div class="card bg-white shadow p-5">
+        <div class="text-center mb-4">
+          <svg xmlns="http://www.w3.org/2000/svg" class="text-danger" width="75" height="75"
+              fill="currentColor" class="bi bi-x-circle" viewBox="0 0 16 16"> <!-- Cross icon -->
+            <path fill-rule="evenodd" d="M8 0a8 8 0 1 0 0 16A8 8 0 0 0 8 0zM4.354 4.354a.5.5 0 1 1 .708-.708L8 7.293l3.938-3.937a.5.5 0 0 1 .708.708L8.707 8l3.937 3.938a.5.5 0 1 1-.708.708L8 8.707l-3.938 3.937a.5.5 0 1 1-.708-.708L7.293 8 3.354 4.062a.5.5 0 0 1 .708-.708z"/>
+          </svg>
+        </div>
+        <div class="text-center mb-4">
+          <h1>Order Failed</h1>
+          <hr/>
+          <p>Cannot place order due to some technical fault. Please try again to place your order. </p>
+          <hr/>
+        </div>
+        
+        <div class="text-center mt-4">
+          <a href="{% url 'Home' %}" class="btn btn-outline-danger"> <- Home</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}
