@@ -1,7 +1,6 @@
 {% extends "base.html" %}
 
 {% block title %}RD Sweets - Savor the Sweet Moments {% endblock %}
-
 {% block have %}{% include "header.html" %}{% endblock have %}
 
 {% block content %}
@@ -22,15 +21,20 @@
                                 <!-- Product name-->
                                 <h5 class="fw-bolder">{{ prod.name }}</h5>
                                 <h6 class="fw">{{ prod.description }}</h6>
-
-                                
                             </div>
                         </div>
                         <!-- Product price-->
                         <div class="price-and-button py-3">
-                            <h6 class="fs-6  text-center">Rs. {{ prod.price }}</h6>
+                            {% if request.user.is_superuser %}
+                                <h6 class="fs-6 text-center" style="color:#8f2bba">Available Qty : {{prod.available_quantity}} Kg</h6>                            
+                            {% endif %}
+                            <h6 class="fs-6  text-center text-success">Rs. {{ prod.price }}</h6>
                         </div>
-                        <a class="btn btn-outline-dark justify-content-center m-auto px-5 mb-2" href="{% url 'product' prod.id %}">More</a>
+                        <a class="btn btn-outline-dark justify-content-center m-auto px-5 mb-2" href="{% url 'product' prod.id %}"> More</a>
+                        {% if request.user.is_superuser %}
+                            <a class="btn btn-outline-warning justify-content-center m-auto px-5 mb-2" href="{% url 'edit_prod' prod.id %}"> Edit</a>
+                            <a class="btn btn-outline-danger justify-content-center m-auto px-5 mb-2" href="{% url 'del_prod' prod.id %}">Delete</a>
+                        {% endif %}
                     </div>
                 </div>
                 {% endfor %}

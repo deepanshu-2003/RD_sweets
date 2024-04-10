@@ -29,7 +29,7 @@
     {% for order in orders %}
     <div class="col">
       <div class="card h-100 shadow-sm">
-      {% if order.cancelled %}
+      {% if order.status == "Cancelled" %}
         <div class="card-header bg-red text-white">
           {% elif order.status == 'Dilivered' %}
           <div class="card-header text-white" style="background-color:green;">
@@ -54,10 +54,18 @@
             <div class="col">
               <p style="margin:0;"><b>Order Date :</b> {{ order.order_date }}</p>
               <p><b>Order Time :</b> {{ order.order_time }}</p>
+              {% if order.status != "Cancelled" and order.status != "Dilivered"%}
               <p><b>Delivered By :</b> {{ order.expected }}</p>
+              {% elif order.status == "Dilivered" %}
+              <p style="margin:0;"><b>Dilivered Date :</b> {{ order.dilivered_date }}</p>
+              <p><b>Dilivered Time :</b> {{ order.dilivered_time }}</p>
+              {% else %}
+              <p style="margin:0;"><b>Cancelled Date :</b> {{ order.cancelled_date }}</p>
+              <p><b>Cancelled Time :</b> {{ order.cancelled_time }}</p>
+              {% endif %}
               <p style="margin:0;"><b>Amount:</b> <span class="amount"> ₹ {{ order.amount }}</span></p>
               <p><b>Payment:</b> {{ order.payment }}</p>
-              {% if order.cancelled %}
+              {% if order.status == "Cancelled" %}
               <p><b>Status: <span style="text-transform: uppercase;color:#BC1D1F;">{{ order.status }}</span></b></p>
               {% elif order.status == 'Dilivered' %}
               <p><b>Status: <span style="text-transform: uppercase;color:#267546;">{{ order.status }}</span></b></p>
@@ -69,7 +77,7 @@
         </div>
         <div class="card-footer bg-custom d-flex justify-content-end">
           <a href="{% url "order_details" order.order_id%}" class="btn btn-success btn-sm" >More</a>
-          {% if order.cancelled == False and order.status != 'Dilivered'%}
+          {% if order.status != "Cancelled" and order.status != 'Dilivered'%}
               <button class="btn btn-danger btn-sm ms-auto" onclick="cancelOrder({{ order.order_id }})">Cancel</button>
           {% endif %}
         </div>

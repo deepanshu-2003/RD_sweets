@@ -1,5 +1,5 @@
 from django.shortcuts import render,redirect,HttpResponse
-from Home.models import Order,OrderDetail,Product,Cancelled_order
+from Home.models import Order,OrderDetail,Product,Cancelled_order,Dilivered_order
 from django.contrib import messages
 import datetime
 from django.utils import timezone
@@ -19,8 +19,17 @@ def  orders(request):
         order_data['amount']=item.amount
         order_data['order_date']=item.order_date
         order_data['order_time']=item.order_time
-        order_data['expected']=item.expected
-        order_data['cancelled']=item.cancelled
+        if not item.cancelled and not item.dilivered:
+            order_data['expected']=item.expected
+        elif item.dilivered:
+            dilivery = Dilivered_order.objects.filter(order_id=item.id).first()
+            order_data['dilivered_date']=dilivery.dilivery_date
+            order_data['dilivered_time']=dilivery.dilivery_time
+        else:
+            cancelled = Cancelled_order.objects.filter(order_id=item.id).first()
+            order_data['cancelled_date']=cancelled.cancelled_date
+            order_data['cancelled_time']=cancelled.cancelled_time
+        # order_data['cancelled']=item.cancelled
         if(item.ready and item.out and item.dilivered):
             order_data['status']='Dilivered'
         elif(item.ready and item.out):
@@ -58,13 +67,25 @@ def  order_detail(request,id):
     order_context['amount']=order.amount
     order_context['order_date']=order.order_date
     order_context['order_time']=order.order_time
-    order_context['expected']=order.expected
+    if not order.cancelled and not order.dilivered:
+        order_context['expected']=order.expected
+    elif order.dilivered:
+        dilivery = Dilivered_order.objects.filter(order_id=order.id).first()
+        order_context['dilivered_date']=dilivery.dilivery_date
+        order_context['dilivered_time']=dilivery.dilivery_time
+        
+    else:
+        cancelled = Cancelled_order.objects.filter(order_id=order.id).first()
+        order_context['cancelled_date']=cancelled.cancelled_date
+        order_context['cancelled_time']=cancelled.cancelled_time
     if(order.ready and order.out and order.dilivered):
         order_context['status']='Dilivered'
     elif(order.ready and order.out):
         order_context['status']='Out for Dilivery'
     elif(order.ready):
         order_context['status']="Ready"
+    elif(order.cancelled):
+        order_context['status']='Cancelled'
     else:
         order_context['status']='Confirmed'
             

@@ -1,7 +1,7 @@
-<!-- orders.html -->
+<!-- order_details.html -->
 
 {% extends "base.html" %}
-{% block title %}Orders{% endblock title %}
+{% block title %}Order Detail{% endblock title %}
 
 {% block head %}
     {{ block.super }}
@@ -15,6 +15,20 @@
 
         .card-header {
             border-bottom: none;
+        }
+
+        /* Define status colors */
+        .status-dilivered {
+            color: green;
+        }
+
+        .status-cancelled {
+            color: red;
+        }
+        /* Adjust button alignment */
+        .button-container {
+            display: flex;
+            {% comment %} justify-content: space-between; {% endcomment %}
         }
     </style>
 {% endblock head %}
@@ -46,6 +60,7 @@
               <p>{{ order.order_date }} at {{order.order_time}}</p>
             </div>
           </div>
+          {% if order.status != 'Dilivered' and order.status != 'Cancelled' %}
           <div class="row mb-3">
             <div class="col-4">
               <p class="fw-bold">Expected Delivery:</p>
@@ -54,14 +69,34 @@
               <p>{{ order.expected }}</p>
             </div>
           </div>
+          {% endif %}
           <div class="row">
             <div class="col-4">
               <p class="fw-bold">Status:</p>
             </div>
             <div class="col-8">
-              <p>{{ order.status }}</p>
+              <p class="{% if order.status == 'Dilivered' %}status-dilivered{% elif order.status == 'Cancelled' %}status-cancelled{% endif %}"><b>{{ order.status }}</b></p>
             </div>
           </div>
+          {% if order.status == 'Dilivered' %}
+          <div class="row mb-3">
+            <div class="col-4">
+              <p class="fw-bold">Dilivered on:</p>
+            </div>
+            <div class="col-8">
+              <p>{{ order.dilivered_date }} at {{order.dilivered_time}}</p>
+            </div>
+          </div>
+          {% elif order.status == 'Cancelled' %}
+          <div class="row mb-3">
+            <div class="col-4">
+              <p class="fw-bold">Cancelled on:</p>
+            </div>
+            <div class="col-8">
+              <p>{{ order.cancelled_date }} at {{order.cancelled_time}}</p>
+            </div>
+          </div>
+          {% endif %}
         </div>
         <div class="col-md-6">
           <h5 class="section-title text-center">Order Items</h5>
@@ -104,11 +139,24 @@
           </div>
         </div>
         
-        <div class="col-md-6 text-md-end">
-          <a href="{% url "orders" %}" class="btn btn-secondary mt-4">Back</a>
-        </div>
+        <div class="col-md-6">
+          <div class="button-container">
+              {% if order.status != "Dilivered" and order.status != "Cancelled" %}
+                  <button class="btn btn-danger me-4 mt-4" onclick="cancelOrder({{ order.order_id }})">Cancel</button>
+              {% endif %}
+              <a href="{% url "orders" %}" class="btn btn-secondary mt-4">Back</a>
+          </div>
+      </div>
       </div>
     </div>
   </div>
 </div>
+
+<script>
+  function cancelOrder(orderId) {
+    // Redirect to the cancel_order view with the order ID
+    window.location.href = "{% url 'order_cancel' %}?order_id=" + orderId;
+  }
+</script>
+
 {% endblock content %}

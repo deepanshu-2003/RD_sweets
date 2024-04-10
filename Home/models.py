@@ -20,6 +20,7 @@ class Customer(models.Model):
 class Product(models.Model):
     name = models.CharField(max_length = 50)
     price = models.DecimalField(default = 0,decimal_places = 2 , max_digits = 10)
+    available_quantity = models.DecimalField(default = 0.00,decimal_places = 2 , max_digits = 10)
     description = models.CharField(max_length = 100 ,default = '',blank= True,null=True)
     image = models.ImageField(upload_to='products/')
     
@@ -54,6 +55,13 @@ class Cancelled_order(models.Model):
     cancelled_date = models.DateField(default=datetime.datetime.today())
     cancelled_time = models.TimeField(default = timezone.localtime(timezone.now(), timezone=timezone.get_current_timezone()).time())
     reason = models.CharField(max_length=200,blank=True)
+    
+    def __str__(self) -> str:
+        return "ID : "+str(self.order_id)
+class Dilivered_order(models.Model):
+    order_id = models.IntegerField()
+    dilivery_date = models.DateField(default=datetime.datetime.today())
+    dilivery_time = models.TimeField(default = timezone.localtime(timezone.now(), timezone=timezone.get_current_timezone()).time())
     
     def __str__(self) -> str:
         return "ID : "+str(self.order_id)

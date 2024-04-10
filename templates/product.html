@@ -17,13 +17,19 @@
         <p class="card-text"><span class="text-success font-weight-bold h5"> Rs. {{product.price}}</span></p>
         <div class="container ">
           <div class="form-group justify-content-center">
-            {% if request.user.is_authenticated %}
-            <label for="exampleInputNumber">Quantity (kg) </label>
-            <input type="number" min="0.1" step="0.10" class="form-control" id="exampleInputNumber" style="width:100px;margin:0 auto;margin-top:10px;" name="qty" value="1.00" placeholder="Qty">
+            {% if request.user.is_authenticated and not request.user.is_superuser %}
+              <label for="exampleInputNumber">Quantity (kg) </label>
+              <input type="number" min="0.1" step="0.10" class="form-control" id="exampleInputNumber" style="width:100px;margin:0 auto;margin-top:10px;" name="qty" value="1.00" placeholder="Qty">
+            {% endif %}
+            {% if request.user.is_superuser %}
+                <label for="exampleInputNumber" class="fs-5 mb-2 text-center" style="font-size:18px;color:green;">Available Quantity : {{product.available_quantity}} kg </label>
+                <br>
+                <a class="btn btn-outline-warning justify-content-center m-auto px-5 mb-2 me-2" href="{% url 'edit_prod' product.id %}"> Edit</a>
+                <a class="btn btn-outline-danger justify-content-center m-auto px-5 mb-2" href="{% url 'del_prod' product.id %}">Delete</a>
             {% endif %}
           </div>
         </div>
-        {% if request.user.is_authenticated %}
+        {% if request.user.is_authenticated and not request.user.is_superuser%}
         <button type="submit" class="btn btn-success btn-lg m-4">Add to cart</button>
         {% endif %}
       </div>
