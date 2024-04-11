@@ -52,6 +52,7 @@ def  orders(request):
         my_orders.append(order_data)
     
     # print(my_orders)
+    my_orders.reverse()
     return render(request,"orders.html",{'orders':my_orders})
 
 
@@ -109,6 +110,11 @@ def order_cancel(request):
         order.save()
         cancel = Cancelled_order(order_id=request.POST['order_id'],reason=request.POST['reason'],cancelled_date=datetime.datetime.today(),cancelled_time=timezone.localtime(timezone.now(), timezone=timezone.get_current_timezone()).time())
         cancel.save()
+        orders = OrderDetail.objects.filter(order_id = request.POST['order_id'])
+        for item in orders:
+            prod = Product.objects.get(id = item.product_id)
+            prod.available_quantity+=item.quantity
+            prod.save()
         messages.success(request,"Your ordered cancelled successfully.. ")
         return redirect('Home')
     try:

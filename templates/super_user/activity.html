@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Activity{% endblock title %}
+{% block content %}
+
+<div class="container mt-5">
+    
+    <div class="card my-3">
+        <h1 class="text-center">Activities</h1>
+        <div class="card-body">
+            {% for activity in activities %}
+            <div class="card mb-3">
+                <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
+                    <h5 class="card-title">{{ activity.user }}</h5>
+                    <a href="{% url "close_activity" activity.id %}" class="btn-close btn-close-white" aria-label="Close"></a>
+                </div>
+                <div class="card-body">
+                    <h6 class="card-subtitle mb-3 text-muted">{{ activity.date }} | {{ activity.time }}</h6>
+                    <h4 class="card-title">{{ activity.title }}</h4>
+                    <p class="card-text">{{ activity.description }}</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+</div>
+
+{% endblock content %}

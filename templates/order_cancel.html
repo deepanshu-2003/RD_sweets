@@ -12,7 +12,8 @@
           <label for="reason">Reason for cancellation:</label>
           <textarea class="form-control" id="reason" name="reason" rows="3" required></textarea>
         </div>
-        <button type="button" class="btn btn-danger" name="order_id" value="{{order_id}}" id="cancelButton">Cancel Order</button>
+        <a href="{% url "orders" %}" class="btn btn-dark me-3"><- Back</a>
+        <button type="button" class="btn btn-danger my-5" name="order_id" value="{{order_id}}" id="cancelButton">Cancel Order</button>
       </form>
     </div>
     

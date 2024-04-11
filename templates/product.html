@@ -9,11 +9,20 @@
 <div class="container">
   
   <div class="row justify-content-center mt-4 mb-4">
-    <div class="card border-0 shadow" style="width: 35rem;">
+    <div class="card{% if not product.list %}-disable{% endif %} border-0 shadow" style="width: 35rem;">
       <img src="{{product.image.url}}" class="card-img-top rounded-top mt-4" alt="{{product.name}}">
       <div class="card-body text-center">
-        <h5 class="card-title text-dark font-weight-bold display-6">{{product.name}}</h5>
-        <p class="card-text text-muted lead">{{product.description}}</p>
+        {% if not product.list %}
+          <h5 class="card-title text-danger font-weight-bold display-6">{{product.name}} - Unlisted</h5>
+        {% else %}
+          <h5 class="card-title text-dark font-weight-bold display-6">{{product.name}}</h5>
+        {% endif %}
+        {% if not product.list %}
+          <p class="card-text text-danger lead">{{product.description}}</p>
+        {% else %}
+          <p class="card-text text-muted lead">{{product.description}}</p>
+        {% endif %}
+        {% if product.available_quantity <= 0.00%} <p class="fs-4 text-muted lead"><b>Out of Stock</b></p>{% endif %}
         <p class="card-text"><span class="text-success font-weight-bold h5"> Rs. {{product.price}}</span></p>
         <div class="container ">
           <div class="form-group justify-content-center">
@@ -21,11 +30,15 @@
               <label for="exampleInputNumber">Quantity (kg) </label>
               <input type="number" min="0.1" step="0.10" class="form-control" id="exampleInputNumber" style="width:100px;margin:0 auto;margin-top:10px;" name="qty" value="1.00" placeholder="Qty">
             {% endif %}
-            {% if request.user.is_superuser %}
+            {% if request.user.is_superuser%}
                 <label for="exampleInputNumber" class="fs-5 mb-2 text-center" style="font-size:18px;color:green;">Available Quantity : {{product.available_quantity}} kg </label>
                 <br>
                 <a class="btn btn-outline-warning justify-content-center m-auto px-5 mb-2 me-2" href="{% url 'edit_prod' product.id %}"> Edit</a>
-                <a class="btn btn-outline-danger justify-content-center m-auto px-5 mb-2" href="{% url 'del_prod' product.id %}">Delete</a>
+                {% if not product.list %}
+                  <a class="btn btn-outline-success justify-content-center m-auto px-5 mb-2" href="{% url 'list_prod' product.id %}">List product</a>
+                {% else %}
+                  <a class="btn btn-outline-danger justify-content-center m-auto px-5 mb-2" href="{% url 'unlist_prod' product.id %}">Unlist</a>
+                {% endif %}
             {% endif %}
           </div>
         </div>

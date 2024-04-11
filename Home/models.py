@@ -23,6 +23,7 @@ class Product(models.Model):
     available_quantity = models.DecimalField(default = 0.00,decimal_places = 2 , max_digits = 10)
     description = models.CharField(max_length = 100 ,default = '',blank= True,null=True)
     image = models.ImageField(upload_to='products/')
+    list = models.BooleanField(default=True)
     
     def __str__(self):
         return self.name
@@ -65,3 +66,11 @@ class Dilivered_order(models.Model):
     
     def __str__(self) -> str:
         return "ID : "+str(self.order_id)
+class Activity(models.Model):
+    user = models.CharField(max_length=60,default="admin")
+    title = models.CharField(max_length=100)
+    description = models.CharField(max_length=300)
+    date = models.DateField(default = datetime.datetime.today())
+    time = models.TimeField(default = timezone.localtime(timezone.now(), timezone=timezone.get_current_timezone()).time())
+    def __str__(self):
+        return f"{self.user} -> {self.title}"

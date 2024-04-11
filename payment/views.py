@@ -22,7 +22,7 @@ def create_checkout_session(request):
     
     price = stripe.Price.create(
     product=product.id,
-    unit_amount=int(cart.net)*100,  # Replace this with the amount in the smallest currency unit (e.g., 1000 for ₹10.00)
+    unit_amount=int(cart.net*100),  # Replace this with the amount in the smallest currency unit (e.g., 1000 for ₹10.00)
     currency='inr',    # Specify currency as INR
     )
     try:
@@ -105,7 +105,9 @@ def success(request):
                 order_detail.quantity = i.quantity
                 order_detail.save()
                 prod = Product.objects.get(id=i.product_id)
+                prod.available_quantity = prod.available_quantity - i.quantity
                 items.append([prod.image,prod.name,i.quantity])
+                prod.save()
                 i.delete()
             MetaCart.objects.filter(user=order.username).delete()
             return render(request, "success.html", {'order':order,'items':items,'mode':'Cash on Dilivery'})
@@ -150,6 +152,7 @@ def payment(request):
         country=request.POST['country']
         postal_code=request.POST['postal_code']
         phone = request.POST['phone']
+        Customer.objects.filter(user=user).delete()
         cust = Customer(user=user,address=address,city=city,state=state,country=country,postal_code=postal_code,phone=phone)
         cust.save()
     return render(request,"payment.html",{})
@@ -158,7 +161,12 @@ def detail(request):
     if CartItem.objects.filter(username=request.user.username).count() ==  0:
         messages.warning(request,"You Dont have any Item in Cart to checkout ")
         return redirect('Home')
-    if Customer.objects.filter(user=request.user.username).count() >0:
-        return redirect("payment")
     else:
-        return render(request,"details.html",{})
+        cart = CartItem.objects.filter(username = request.user.username)
+        for item in cart:
+            prod = Product.objects.get(id = item.product_id)
+            if item.quantity>prod.available_quantity:
+                messages.error(request,f"{prod.name} dont have requested quantity available.")
+                return redirect('Home')
+        customer = Customer.objects.filter(user=request.user.username).first()
+        return render(request,"details.html",{'customer':customer})

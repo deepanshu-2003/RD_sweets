@@ -7,33 +7,47 @@
     <!-- Section-->
     {{status}}
     <section class="py-5">
-        <div class="container px-4 px-lg-5 mt-5">
+        <div class="container px-4 px-lg-5 ">
+            {% if request.user.is_superuser %}
+                <a href="{% url "add_prod" %}" class="btn btn-light mx-4 mb-4">+Add a product</a>
+            {% endif %}
             <div class="row gx-4 gx-lg-5 row-cols-2 row-cols-md-3 row-cols-xl-4 justify-content-center">
 
                 {% for prod in products %}
                 <div class="col mb-5">
-                    <div class="card h-100 d-flex flex-column">
+                    <div class="card{% if not prod.list %}-disable{% endif %} h-100 d-flex flex-column" >
                         <!-- Product image-->
                         <img class="card-img-top" src="{{ prod.image.url }}" alt="{{ prod.name }}" />
                         <!-- Product details-->
                         <div class="card-body p-4 flex-grow-1">
                             <div class="text-center">
                                 <!-- Product name-->
-                                <h5 class="fw-bolder">{{ prod.name }}</h5>
-                                <h6 class="fw">{{ prod.description }}</h6>
+                                {% if not prod.list %}
+                                    <h5 class="fw-bolder" style="color:red;">{{ prod.name }} - Unlistetd</h5>
+                                {% else %}
+                                    <h5 class="fw-bolder">{{ prod.name }}</h5>
+                                {% endif %}
+                                <h6 class="fw" {% if not prod.list %}style="color:red;"{% endif %}>{{ prod.description }}</h6>
                             </div>
                         </div>
                         <!-- Product price-->
                         <div class="price-and-button py-3">
+                            {% if prod.available_quantity <= 0.00 %}
+                                <h5 class="fs-5 text-center text-muted" style="color:#8f2bba">Out of stock</h5>                            
+                            {% endif %}
                             {% if request.user.is_superuser %}
-                                <h6 class="fs-6 text-center" style="color:#8f2bba">Available Qty : {{prod.available_quantity}} Kg</h6>                            
+                                <h6 class="fs-6 text-center" style="color:{% if prod.available_quantity <= 0.00 %}red; {% else %}#8f2bba {% endif %}">Available Qty : {{prod.available_quantity}} Kg</h6>                            
                             {% endif %}
                             <h6 class="fs-6  text-center text-success">Rs. {{ prod.price }}</h6>
                         </div>
                         <a class="btn btn-outline-dark justify-content-center m-auto px-5 mb-2" href="{% url 'product' prod.id %}"> More</a>
                         {% if request.user.is_superuser %}
                             <a class="btn btn-outline-warning justify-content-center m-auto px-5 mb-2" href="{% url 'edit_prod' prod.id %}"> Edit</a>
-                            <a class="btn btn-outline-danger justify-content-center m-auto px-5 mb-2" href="{% url 'del_prod' prod.id %}">Delete</a>
+                            {% if not prod.list %}
+                                <a class="btn btn-outline-success justify-content-center m-auto px-5 mb-2" href="{% url 'list_prod' prod.id %}">List product</a>
+                            {% else %}
+                                <a class="btn btn-outline-danger justify-content-center m-auto px-5 mb-2" href="{% url 'unlist_prod' prod.id %}">Unlist</a>
+                            {% endif %}
                         {% endif %}
                     </div>
                 </div>
