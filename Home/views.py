@@ -1,5 +1,5 @@
 from django.shortcuts import render,redirect,HttpResponse
-from .models import Product,Activity
+from .models import Product,Activity,Order,OrderDetail,Dilivered_order,Cancelled_order
 from django.contrib.auth import logout,login,authenticate
 from django.contrib import messages
 from django.contrib.auth.models import User
@@ -166,3 +166,60 @@ def close_activity(request,id):
     except:
         messages.error(request,"Internal servere error occured.")
         return redirect('Activity')
+
+
+def all_orders(request):
+    if not request.user.is_superuser:
+        messages.error(request,"Internal server error occured.")
+        return redirect('Home')
+    all_orders = []
+    
+    orders = Order.objects.all()
+    if orders.count()==0:
+        messages.warning(request,"Don't have any order yet !!! , order now... ")
+        return redirect('Home')
+    for item in orders:
+        order_detail = OrderDetail.objects.filter(order_id=item.id)
+        order_data = {}
+        user = User.objects.get(username = item.username)
+        order_data['user'] =[user.username,user.first_name,user.last_name]
+        order_data['order_id']=item.id
+        order_data['items']=[]
+        order_data['amount']=item.amount
+        order_data['order_date']=item.order_date
+        order_data['order_time']=item.order_time
+        if not item.cancelled and not item.dilivered:
+            order_data['expected']=item.expected
+        elif item.dilivered:
+            dilivery = Dilivered_order.objects.filter(order_id=item.id).first()
+            order_data['dilivered_date']=dilivery.dilivery_date
+            order_data['dilivered_time']=dilivery.dilivery_time
+        else:
+            cancelled = Cancelled_order.objects.filter(order_id=item.id).first()
+            order_data['cancelled_date']=cancelled.cancelled_date
+            order_data['cancelled_time']=cancelled.cancelled_time
+        # order_data['cancelled']=item.cancelled
+        if(item.ready and item.out and item.dilivered):
+            order_data['status']='Dilivered'
+        elif(item.ready and item.out):
+            order_data['status']='Out for Dilivery'
+        elif(item.ready):
+            order_data['status']="Ready"
+        elif(item.cancelled):
+            order_data['status']='Cancelled'
+        else:
+            order_data['status']='Confirmed'
+
+        if(item.payment):
+            order_data['payment']="Paid"
+        else:
+            order_data['payment']="Pending"
+            
+        for i in order_detail:
+            prod = Product.objects.get(id=i.product_id)
+            order_data['items'].append([prod.image,prod.name,i.quantity])
+        all_orders.append(order_data)
+    
+    # print(my_orders)
+    all_orders.reverse()
+    return render(request,"orders.html",{'orders':all_orders})

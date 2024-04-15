@@ -37,9 +37,14 @@
         {% else %}
           <div class="card-header bg-purple text-white">
         {% endif %}
-          <h5 class="mb-0">Order ID: #{{ order.order_id }}</h5>
+          <h5 class="mb-0">Order ID: #{{ order.order_id }} {% if request.user.is_superuser %} - {{order.user.0}}{% endif %}</h5>
         </div>
         <div class="card-body">
+          {% if request.user.is_superuser %}
+            <h6 class = "card-text">Username : {{order.user.0}}</h6>
+            <h6 class = "card-text">User : {{order.user.1}} {{order.user.2}}</h6>
+            <hr/>
+          {% endif %}
           <h5 class="card-title text-center">{{order.items|length}} Items</h5>
           <ul class="list-group">
             {% for item in order.items %}

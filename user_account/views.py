@@ -1,6 +1,7 @@
 from django.shortcuts import render,redirect,HttpResponse
 from Home.models import Order,OrderDetail,Product,Cancelled_order,Dilivered_order
 from django.contrib import messages
+from django.contrib.auth.models import User
 import datetime
 from django.utils import timezone
 # Create your views here.
@@ -57,13 +58,16 @@ def  orders(request):
 
 
 def  order_detail(request,id):    
-    order = Order.objects.filter(id=id,username=request.user.username).first()
-    if order==None:
+    order = Order.objects.filter(id=id).first()
+    if order==None or (order.username != request.user.username and not request.user.is_superuser):
         messages.error(request,"Specified order doesn't exists.")
         return redirect('Home')
     order_detail = OrderDetail.objects.filter(order_id=order.id)
     order_context = {}
     order_context['order_id']=order.id
+    if request.user.is_superuser:
+        user = User.objects.get(username = order.username)
+        order_context['user'] = [user.username,user.first_name,user.last_name]
     order_context['items']=[]
     order_context['amount']=order.amount
     order_context['order_date']=order.order_date

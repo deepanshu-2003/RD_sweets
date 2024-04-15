@@ -25,15 +25,15 @@
                                 {% if not prod.list %}
                                     <h5 class="fw-bolder" style="color:red;">{{ prod.name }} - Unlistetd</h5>
                                 {% else %}
-                                    <h5 class="fw-bolder">{{ prod.name }}</h5>
+                                    <h5 class="fw-bolder {% if prod.available_quantity <= 0.00 %}text-muted{% endif %}">{{ prod.name }}{% if prod.available_quantity <= 0.00 %} - Not Available{% endif %}</h5>
                                 {% endif %}
-                                <h6 class="fw" {% if not prod.list %}style="color:red;"{% endif %}>{{ prod.description }}</h6>
+                                <h6 class="fw {% if prod.available_quantity <= 0.00 %}text-muted{% endif %}" {% if not prod.list %}style="color:red;"{% endif %}>{{ prod.description }}</h6>
                             </div>
                         </div>
                         <!-- Product price-->
                         <div class="price-and-button py-3">
                             {% if prod.available_quantity <= 0.00 %}
-                                <h5 class="fs-5 text-center text-muted" style="color:#8f2bba">Out of stock</h5>                            
+                                <h5 class="fs-5 text-center text-muted" style="color:#8f2bba">Out of stock</h5>                     
                             {% endif %}
                             {% if request.user.is_superuser %}
                                 <h6 class="fs-6 text-center" style="color:{% if prod.available_quantity <= 0.00 %}red; {% else %}#8f2bba {% endif %}">Available Qty : {{prod.available_quantity}} Kg</h6>                            

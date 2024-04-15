@@ -10,6 +10,7 @@ urlpatterns = [
     path('unlist/<int:pno>',views.unlist_prod,name="unlist_prod"),
     path('edit/<int:pno>',views.edit_prod,name="edit_prod"),
     path('add-product/',views.add_prod,name="add_prod"),
+    path('orders/',views.all_orders,name="all_orders"),
     path('login/',views.login_user,name="login"),
     path('logout/',views.logout_user,name="logout"),
     path('register/',views.register_user,name="register"),

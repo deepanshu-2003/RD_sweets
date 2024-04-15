@@ -40,8 +40,12 @@ def cart_add(request,pno):
     if request.method=="POST":
         product_id = pno
         user = request.user.username
-        qty = request.POST['qty']
+        qty = Decimal(request.POST['qty'])
         if CartItem.objects.filter(username=user,product_id=product_id).count()<1:
+            prod = Product.objects.get(id = product_id)
+            if qty > prod.available_quantity:
+                messages.error(request,f"{prod.name} dont have requested quantity available.")
+                return redirect('Home')
             new = CartItem.objects.create(username=user,product_id=product_id,quantity=qty)
             new.save()
             messages.success(request,"Item is successfully added to cart")

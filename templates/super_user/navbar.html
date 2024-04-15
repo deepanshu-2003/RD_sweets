@@ -18,9 +18,9 @@
 
                 {% if request.user.is_authenticated %}
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">Account</a>
+                    <a class="nav-link dropdown-toggle" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">Manage</a>
                     <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                        <li><a class="dropdown-item" href="{% url "orders" %}">My Orders</a></li>
+                        <li><a class="dropdown-item" href="{% url "all_orders" %}">All Orders</a></li>
                         <li><hr class="dropdown-divider" /></li>
                         <li><a class="dropdown-item" href="#!">Popular Items</a></li>
                         <li><a class="dropdown-item" href="#!">New Arrivals</a></li>
@@ -36,8 +36,8 @@
                 {% if request.user.is_authenticated %}
                 <li class="nav-item">
                     <a class="btn btn-outline-light me-lg-4" href="{% url 'activity' %}">
-                        <i class="bi bi-calendar-check me-1"></i> <!-- Changed symbol to a calendar check -->
-                        Activities <!-- Changed text to "Activities" -->
+                        <i class="bi bi-calendar-check me-1"></i> 
+                        Activities 
                         <span class="badge bg-light text-dark ms-1 rounded-pill">{{ total_activity }}</span>
                     </a>
                 </li>
