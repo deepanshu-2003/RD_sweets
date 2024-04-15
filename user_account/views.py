@@ -1,5 +1,5 @@
 from django.shortcuts import render,redirect,HttpResponse
-from Home.models import Order,OrderDetail,Product,Cancelled_order,Dilivered_order
+from Home.models import Order,OrderDetail,Product,Cancelled_order,Dilivered_order,Customer
 from django.contrib import messages
 from django.contrib.auth.models import User
 import datetime
@@ -9,6 +9,8 @@ def  orders(request):
     my_orders = []
     
     orders = Order.objects.filter(username=request.user.username)
+    if request.user.is_superuser:
+        return redirect('all_orders')
     if orders.count()==0:
         messages.warning(request,"You don't have any order yet !!! , order now... ")
         return redirect('Home')
@@ -68,6 +70,13 @@ def  order_detail(request,id):
     if request.user.is_superuser:
         user = User.objects.get(username = order.username)
         order_context['user'] = [user.username,user.first_name,user.last_name]
+    customer = Customer.objects.get(user = order.username)
+    order_context['address'] = f"{customer.address}, {customer.city}, {customer.state}, {customer.country} ({customer.postal_code})"
+    if request.user.is_superuser:
+        order_context['phone'] = customer.phone
+    else:
+        order_context['phone'] = f"XXXXXX{customer.phone[6:]}"
+        
     order_context['items']=[]
     order_context['amount']=order.amount
     order_context['order_date']=order.order_date
@@ -83,6 +92,8 @@ def  order_detail(request,id):
         cancelled = Cancelled_order.objects.filter(order_id=order.id).first()
         order_context['cancelled_date']=cancelled.cancelled_date
         order_context['cancelled_time']=cancelled.cancelled_time
+        if request.user.is_superuser:
+            order_context['cancelled_reason'] = cancelled.reason
     if(order.ready and order.out and order.dilivered):
         order_context['status']='Dilivered'
     elif(order.ready and order.out):
@@ -126,7 +137,7 @@ def order_cancel(request):
     except Exception as e :
         messages.error(request,"Order cannot be cancelled!! ")
         return redirect('Home')
-    if order.username != request.user.username or order.cancelled == True:
+    if (order.username != request.user.username and not request.user.is_superuser) or order.cancelled:
         messages.error(request,"Order cannot be cancelled!! ")
         return redirect('Home')
     else:

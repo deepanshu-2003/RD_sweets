@@ -1,8 +1,11 @@
 from django.shortcuts import render,redirect,HttpResponse
 from .models import Product,Activity,Order,OrderDetail,Dilivered_order,Cancelled_order
+from payment.models import Payment
 from django.contrib.auth import logout,login,authenticate
 from django.contrib import messages
 from django.contrib.auth.models import User
+import datetime
+from django.utils import timezone
 
 # Create your views here.
 def index(request):
@@ -223,3 +226,63 @@ def all_orders(request):
     # print(my_orders)
     all_orders.reverse()
     return render(request,"orders.html",{'orders':all_orders})
+
+def order_ready(request,id):
+    if not request.user.is_superuser:
+        messages.error(request,"Internal server error occured.")
+        return redirect('Home')
+    try:
+        order = Order.objects.get(id = id)
+        order.ready = True
+        order.save()
+        messages.success(request,"Order marked to ready.")
+        return redirect('orders')
+    except:
+        messages.error(request,"Internal server error occured.")
+        return redirect('Home')
+def order_out(request,id):
+    if not request.user.is_superuser:
+        messages.error(request,"Internal server error occured.")
+        return redirect('Home')
+    try:
+        order = Order.objects.get(id = id)
+        order.out = True
+        order.save()
+        messages.success(request,"Order marked to Out.")
+        return redirect('orders')
+    except:
+        messages.error(request,"Internal server error occured.")
+        return redirect('Home')
+    
+def order_diliver(request,id):
+    if not request.user.is_superuser:
+        messages.error(request,"Internal server error occured.")
+        return redirect('Home')
+    try:
+        order = Order.objects.get(id = id)
+        order.dilivered = True
+        order.save()
+        dilivered = Dilivered_order(order_id = id,dilivery_date = datetime.datetime.today(),dilivery_time = timezone.localtime(timezone.now(), timezone=timezone.get_current_timezone()).time())
+        dilivered.save()
+        messages.success(request,"Order marked to dilivered.")
+        return redirect('orders')
+    except:
+        messages.error(request,"Internal server error occured.")
+        return redirect('Home')
+    
+def payment_cash(request,id):
+    if not request.user.is_superuser:
+        messages.error(request,"Internal server error occured.")
+        return redirect('Home')
+    try:
+        order = Order.objects.get(id = id)
+        order.payment = True
+        order.save()
+        payment = Payment(order_id = id,user=order.username,payment_mode = "Cash",payment_date = datetime.datetime.today(),payment_time = timezone.localtime(timezone.now(), timezone=timezone.get_current_timezone()).time(),amount=order.amount)
+        payment.save()
+        messages.success(request,"Payment made successfully.")
+        return redirect('orders')
+    except:
+        messages.error(request,"Internal server error occured.")
+        return redirect('Home')
+    

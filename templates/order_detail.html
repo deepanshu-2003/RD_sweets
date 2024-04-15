@@ -40,6 +40,65 @@
       <h3 class="mb-0 text-center">Order Details</h3>
     </div>
     <div class="card-body">
+
+
+
+      <div class="row">
+        <div class="col-md-6">
+          <h5 class="section-title text-center">User Information</h5>
+          <hr class="my-4">
+          {% if request.user.is_superuser %}
+            <div class="row mb-3">
+              <div class="col-4">
+                <p class="fw-bold">Username :</p>
+              </div>
+              <div class="col-8">
+                <p>{{ order.user.0 }}</p>
+              </div>
+            </div>
+            <div class="row mb-3">
+              <div class="col-4">
+                <p class="fw-bold">First name :</p>
+              </div>
+              <div class="col-8">
+                <p>{{ order.user.1 }}</p>
+              </div>
+            </div>
+            <div class="row mb-3">
+              <div class="col-4">
+                <p class="fw-bold">Last name :</p>
+              </div>
+              <div class="col-8">
+                <p>{{ order.user.2 }}</p>
+              </div>
+            </div>
+          {% endif %}
+          <div class="row mb-3">
+            <div class="col-4">
+              <p class="fw-bold">Phone :</p>
+            </div>
+            <div class="col-8">
+              <p>{{ order.phone }}</p>
+            </div>
+          </div>
+          <div class="row mb-3">
+            <div class="col-4">
+              <p class="fw-bold">Address :</p>
+            </div>
+            <div class="col-8">
+              <p>{{ order.address }}</p>
+            </div>
+          </div>
+          
+        </div>
+      </div>
+      <hr class="my-4">
+
+
+
+
+
+
       <div class="row">
         <div class="col-md-6">
           <h5 class="section-title text-center">Order Information</h5>
@@ -52,6 +111,24 @@
               <p>#{{ order.order_id }}</p>
             </div>
           </div>
+          {% if request.user.is_superuser %}
+            <div class="row mb-0">
+              <div class="col-4">
+                <p class="fw-bold">Username :</p>
+              </div>
+              <div class="col-8">
+                <p>{{ order.user.0 }}</p>
+              </div>
+            </div>
+            <div class="row mb-3">
+              <div class="col-4">
+                <p class="fw-bold">User :</p>
+              </div>
+              <div class="col-8">
+                <p>{{ order.user.1 }} {{order.user.2}}</p>
+              </div>
+            </div>
+          {% endif %}
           <div class="row mb-3">
             <div class="col-4">
               <p class="fw-bold">Ordered on :</p>
@@ -88,7 +165,7 @@
             </div>
           </div>
           {% elif order.status == 'Cancelled' %}
-          <div class="row mb-3">
+          <div class="row mb-0">
             <div class="col-4">
               <p class="fw-bold">Cancelled on:</p>
             </div>
@@ -96,6 +173,17 @@
               <p>{{ order.cancelled_date }} at {{order.cancelled_time}}</p>
             </div>
           </div>
+          
+            {% if request.user.is_superuser %}
+              <div class="row mb-3">
+                <div class="col-4">
+                  <p class="fw-bold">Cancel Reason:</p>
+                </div>
+                <div class="col-8">
+                  <p>{{ order.cancelled_reason }}</p>
+                </div>
+              </div>
+            {% endif %}
           {% endif %}
         </div>
         <div class="col-md-6">
@@ -116,6 +204,8 @@
           {% endfor %}
         </div>
       </div>
+
+
       <hr class="my-4">
       <div class="row">
         <div class="col-md-6">
@@ -135,6 +225,9 @@
             </div>
             <div class="col-6">
               <p>{{ order.payment }}</p>
+              {% if request.user.is_superuser and order.payment == "Pending" %}
+                <a href="{% url "payment_cash" order.order_id%}" class="btn btn-outline-success">Mark Payment</a>
+              {% endif %}
             </div>
           </div>
         </div>
@@ -143,6 +236,13 @@
           <div class="button-container">
               {% if order.status != "Dilivered" and order.status != "Cancelled" %}
                   <button class="btn btn-danger me-4 mt-4" onclick="cancelOrder({{ order.order_id }})">Cancel</button>
+              {% endif %}
+              {% if order.status == "Confirmed" and request.user.is_superuser%}
+                <a href="{% url "order_ready" order.order_id %}" class="btn btn-outline-success me-3 mt-4">Ready</a>
+              {% elif order.status == "Ready" and request.user.is_superuser %}
+                <a href="{% url "order_out" order.order_id %}" class="btn btn-outline-success me-3 mt-4">Out</a>
+              {% elif order.status == "Out for Dilivery" and request.user.is_superuser %}
+                <a href="{% url "order_diliver" order.order_id %}" class="btn btn-outline-success me-3 mt-4">Dilivery</a>
               {% endif %}
               <a href="{% url "orders" %}" class="btn btn-secondary mt-4">Back</a>
           </div>
