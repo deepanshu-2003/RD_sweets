@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+{% block title %}Edit Customer{% endblock title %}
+
+{% block content %}
+
+<div class="container mt-4 mb-4">
+  <div class="card mx-auto border-0 shadow-sm" style="max-width: 700px;">
+    <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+      <h5 class="card-title mb-0">Edit Customer details : {{ customer.username }}</h5>
+      <i class="fas fa-edit text-white"></i> </div>
+    <div class="card-body">
+      <form method="POST" action="{% url 'edit_customer' customer.username %}" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <div class="mb-3 row">
+          <label for="name" class="col-sm-3 col-form-label">First Name:</label>
+          <div class="col-sm-9">
+            <input type="text" name="first_name" id="name" class="form-control" value="{{ customer.first_name }}" required>
+          </div>
+        </div>
+        <div class="mb-3 row">
+          <label for="name" class="col-sm-3 col-form-label">Last Name:</label>
+          <div class="col-sm-9">
+            <input type="text" name="last_name" id="name" class="form-control" value="{{ customer.last_name }}" required>
+          </div>
+        </div>
+        
+        <div class="mb-3 row">
+            <label for="image" class="col-sm-3 col-form-label">Profile Pic :</label>
+            <div class="col-sm-9">
+                <input type="file" name="profile_pic" id="image" class="form-control" accept="image/*">
+                <p class="mt-2"><img id="current-profile-img" src="{{ customer.profile_pic.url }}" alt="{{ customer.first_name }} {{customer.last_name}} image" width="100"></p>
+            </div>
+            <div class="text-center">
+              <button type="button" class="btn btn-danger" id="remove-photo-btn">No profile</button>
+          </div>
+        </div>
+        
+        <div class="row">
+            <div class="mb-3 col-sm-6">
+              <label for="email" class="col-form-label">Email:</label>
+              <div class="col-sm-12">
+                <input type="email" name="email" id="email" class="form-control"  value="{{ customer.email }}" required>
+              </div>
+            </div>
+            <div class="mb-3 col-sm-6">
+              <label for="phone" class="col-form-label">Phone:</label>
+              <div class="col-sm-12">
+                <input type="tel" name="phone" pattern = "[0-9]{10}" id="phone" class="form-control" maxlength="10" value="{{ customer.phone }}">
+              </div>
+            </div>
+          </div>
+
+
+        <div class="mb-3 row">
+            <label for="address" class="col-sm-3 col-form-label">Address:</label>
+            <div class="col-sm-9">
+                <textarea name="address" id="address" class="form-control" rows="5">{{ customer.address }}</textarea>
+            </div>
+        </div>
+        
+        <div class="mb-3 row">
+          <label for="city" class="col-sm-3 col-form-label">City:</label>
+          <div class="col-sm-9">
+            <input type="text" name="city" id="name" class="form-control" value="{{ customer.city }}" >
+          </div>
+        </div>
+        <div class="mb-3 row">
+          <label for="state" class="col-sm-3 col-form-label">State:</label>
+          <div class="col-sm-9">
+            <input type="text" name="state" id="name" class="form-control" value="{{ customer.state }}" >
+          </div>
+        </div>
+        <div class="mb-3 row">
+          <label for="country" class="col-sm-3 col-form-label">Country:</label>
+          <div class="col-sm-9">
+            <input type="text" name="country" id="name" class="form-control" value="{{ customer.country }}" >
+          </div>
+        </div>
+
+
+        <div class="mb-3 row">
+            <label for="postal_code" class="col-sm-3 col-form-label">Postal code :</label>
+            <div class="col-sm-9">
+              <input type="tel" name="postal_code" pattern = "[0-9]{6}" id="name" class="form-control" maxlength="6" value="{{ customer.postal_code }}" >
+            </div>
+          </div>
+
+
+        
+
+        <div class="text-center">
+          <button type="Edit" class="btn btn-success">Edit User</button>
+          {% if customer.block == False %}
+            <a href="{% url 'block_customer' customer.username %}" class="btn btn-danger">Block</a>
+          {% else %}
+            <a href="{% url 'unblock_customer' customer.username %}" class="btn btn-success">Unblock</a>
+          {% endif %}
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  const fileInput = document.getElementById('image');
+
+  fileInput.addEventListener('change', (event) => {
+    const fileName = event.target.files[0].name;
+
+    // Check if any file is selected
+    if (event.target.files && event.target.files[0]) {
+        const reader = new FileReader();
+
+        // When the FileReader has loaded the file, set the src attribute of current-profile-img
+        reader.onload = function(event) {
+            document.getElementById('current-profile-img').src = event.target.result;
+        };
+
+        // Read the selected image file as a data URL
+        reader.readAsDataURL(event.target.files[0]);
+    } else {
+        // If no file is selected, clear the src attribute of current-profile-img
+        document.getElementById('current-profile-img').src = '';
+    }
+});
+
+  document.getElementById('remove-photo-btn').addEventListener('click', function() {
+    // Create a Blob object for the default profile picture
+    fetch('/media/profiles/default_profile_pic_128491.jpg')
+        .then(response => response.blob())
+        .then(blob => {
+            const file = new File([blob], 'default_profile_pic_128491.jpg', { type: blob.type });
+            // Set the file as the value of the file input field
+            const fileInput = document.getElementById('image');
+            const fileData = new DataTransfer();
+            fileData.items.add(file);
+            fileInput.files = fileData.files;
+            
+            // Display the default profile picture
+            document.getElementById('current-profile-img').src = '/media/profiles/default_profile_pic_128491.jpg';
+        });
+});
+</script>
+
+{% endblock content %}

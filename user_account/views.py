@@ -142,3 +142,27 @@ def order_cancel(request):
         return redirect('Home')
     else:
         return render(request,"order_cancel.html",{'order_id':request.GET['order_id']})
+
+
+def profile(request):
+    try:
+        user = User.objects.get(username=request.user.username)
+        cust = Customer.objects.get(user = request.user.username)
+        profile = {
+            'username':user.username,
+            'first_name':user.first_name,
+            'last_name':user.last_name,
+            'email':user.email,
+            'profile_pic':cust.profile_pic,
+            'phone':cust.phone,
+            'address':cust.address,
+            'city':cust.city,
+            'state':cust.state,
+            'country':cust.country,
+            'postal_code':cust.postal_code,
+        }
+        print(profile)
+        return render(request,"profile.html",{'profile':profile})
+    except:
+        messages.error(request,"Internal server error occured.")
+        return redirect('Home')

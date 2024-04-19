@@ -1,5 +1,5 @@
 from django.shortcuts import render,redirect,HttpResponse
-from .models import Product,Activity,Order,OrderDetail,Dilivered_order,Cancelled_order
+from .models import Product,Activity,Order,OrderDetail,Dilivered_order,Cancelled_order,Customer
 from payment.models import Payment
 from django.contrib.auth import logout,login,authenticate
 from django.contrib import messages
@@ -31,6 +31,13 @@ def login_user(request):
         password = request.POST["passwd"]
         user = authenticate(request,username=username,password=password)
         if user is not None:
+            cust = Customer.objects.filter(user = username).first()
+            if cust == None:
+                cust = Customer(user = username)
+                cust.save()
+            if cust.block:
+                messages.error(request, "Your user id is banned by administrator")
+                return redirect('login')
             login(request,user)
             messages.success(request,"You have successfully been logged in . ")
             return redirect('Home')
@@ -285,4 +292,159 @@ def payment_cash(request,id):
     except:
         messages.error(request,"Internal server error occured.")
         return redirect('Home')
+    
+def pending_orders(request):
+    if not request.user.is_superuser:
+        messages.error(request,"Internal server error occured.")
+        return redirect('Home')
+    pending_orders = []
+    
+    orders = Order.objects.filter(dilivered = False,cancelled = False)
+    if orders.count()==0:
+        messages.warning(request,"Don't have any pending order... ")
+        return redirect('Home')
+    for item in orders:
+        order_detail = OrderDetail.objects.filter(order_id=item.id)
+        order_data = {}
+        user = User.objects.get(username = item.username)
+        order_data['user'] =[user.username,user.first_name,user.last_name]
+        order_data['order_id']=item.id
+        order_data['items']=[]
+        order_data['amount']=item.amount
+        order_data['order_date']=item.order_date
+        order_data['order_time']=item.order_time
+        if not item.cancelled and not item.dilivered:
+            order_data['expected']=item.expected
+        elif item.dilivered:
+            dilivery = Dilivered_order.objects.filter(order_id=item.id).first()
+            order_data['dilivered_date']=dilivery.dilivery_date
+            order_data['dilivered_time']=dilivery.dilivery_time
+        else:
+            cancelled = Cancelled_order.objects.filter(order_id=item.id).first()
+            order_data['cancelled_date']=cancelled.cancelled_date
+            order_data['cancelled_time']=cancelled.cancelled_time
+        # order_data['cancelled']=item.cancelled
+        if(item.ready and item.out and item.dilivered):
+            order_data['status']='Dilivered'
+        elif(item.ready and item.out):
+            order_data['status']='Out for Dilivery'
+        elif(item.ready):
+            order_data['status']="Ready"
+        elif(item.cancelled):
+            order_data['status']='Cancelled'
+        else:
+            order_data['status']='Confirmed'
+
+        if(item.payment):
+            order_data['payment']="Paid"
+        else:
+            order_data['payment']="Pending"
+            
+        for i in order_detail:
+            prod = Product.objects.get(id=i.product_id)
+            order_data['items'].append([prod.image,prod.name,i.quantity])
+        pending_orders.append(order_data)
+    
+    # print(my_orders)
+    pending_orders.reverse()
+    return render(request,"orders.html",{'orders':pending_orders})
+
+def all_customer(request):
+    customers = []
+    users = User.objects.all()
+    for user in users:
+        customer = {}
+        cust = Customer.objects.filter(user = user.username).first()
+        if cust == None :
+            cust = Customer(user = user.username,phone = "")
+            cust.save()
+        customer['profile_pic']=cust.profile_pic
+        customer['username']=user.username
+        customer['block']=cust.block
+        customer['first_name']=user.first_name
+        customer['last_name']=user.last_name
+        if cust is not None:
+            customer['address'] = f"{cust.address}, {cust.city}, {cust.state}, {cust.country}"
+            customer['postal_code']=cust.postal_code
+            customer['phone']=cust.phone
+            customer['email']=user.email
+        customers.append(customer)
+    print(customers)
+    # return HttpResponse(customers)
+    return render(request,'super_user/customers.html',{'customers':customers})
+
+
+def edit_customer(request,user):
+    if not request.user.is_superuser:
+        messages.error(request,"Internal server error occured.")
+        return redirect('Home')
+    try:
+        if request.method == 'POST':
+            customer = Customer.objects.get(user = user)
+            usr = User.objects.get(username = user)
+            usr.first_name = request.POST['first_name']
+            usr.last_name = request.POST['last_name']
+            usr.email = request.POST['email']
+            usr.save()
+            if 'profile_pic' in request.FILES:
+                customer.profile_pic = request.FILES['profile_pic']
+            customer.address = request.POST['address']
+            customer.city = request.POST['city']
+            customer.state = request.POST['state']
+            customer.country = request.POST['country']
+            customer.phone = request.POST['phone']
+            customer.postal_code = request.POST['postal_code']
+            customer.save()
+            messages.success(request,"customer details edited successfully.")
+            return redirect('all_customer')
+        cust = Customer.objects.get(user=user)
+        usr = User.objects.get(username = user)
+        customer = {
+            'profile_pic':cust.profile_pic,
+            'username':cust.user,
+            'block':cust.block,
+            'first_name':usr.first_name,
+            'last_name':usr.last_name,
+            'email':usr.email,
+            'phone':cust.phone,
+            'address':cust.address,
+            'state':cust.state,
+            'city':cust.city,
+            'country':cust.country,
+            'postal_code':cust.postal_code,    
+        }
+        return render(request,'super_user/edit_customer.html',{'customer':customer})
+    except Exception as e:
+        messages.error(request,f"Internal server error occured. {e}")
+        return redirect('Home')
+        
+
+def block_customer(request,user):
+    if not request.user.is_superuser:
+        messages.error(request,"Internal server error occured.")
+        return redirect('Home')
+    try:
+        cust = Customer.objects.get(user=user)
+        cust.block = True
+        cust.save()
+        messages.success(request,"User blocked successfully")
+        return redirect('all_customer')
+    except:
+        messages.error(request,"Internal server error occured.")
+        return redirect('Home')
+        
+def unblock_customer(request,user):
+    if not request.user.is_superuser:
+        messages.error(request,"Internal server error occured.")
+        return redirect('Home')
+    try:
+        cust = Customer.objects.get(user=user)
+        cust.block = False
+        cust.save()
+        messages.success(request,"Unblocked user successfully")
+        return redirect('all_customer')
+    except:
+        messages.error(request,"Internal server error occured.")
+        return redirect('Home')
+        
     

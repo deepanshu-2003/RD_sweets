@@ -21,9 +21,9 @@
                     <a class="nav-link dropdown-toggle" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">Manage</a>
                     <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
                         <li><a class="dropdown-item" href="{% url "all_orders" %}">All Orders</a></li>
+                        <li><a class="dropdown-item" href="{% url "pending_orders" %}">Pending Orders</a></li>
                         <li><hr class="dropdown-divider" /></li>
-                        <li><a class="dropdown-item" href="#!">Popular Items</a></li>
-                        <li><a class="dropdown-item" href="#!">New Arrivals</a></li>
+                        <li><a class="dropdown-item" href="{% url "all_customer" %}">Customers</a></li>
                     </ul>
                 </li>
                 {% endif %}

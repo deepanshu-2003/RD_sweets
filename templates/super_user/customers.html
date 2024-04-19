@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block title %}Customer{% endblock title %}
+
+{% block content %}
+<div class="container">
+    <div class="card shadow my-3">
+      <h2 class="mt-4 mb-4 text-center">Customer Details</h2>
+    <div class="card-body">
+      <div class="row">
+        {% for customer in customers %}
+        <div class="col-md-4 mb-4">
+          <div class="card">
+            <img src="{{ customer.profile_pic.url }}" class="card-img-top img-fluid rounded mx-auto d-block" alt="Profile Picture" style="max-width: 120px;">
+            <div class="card-body">
+              <h5 class="card-title text-center mb-4">{{ customer.first_name }} {{ customer.last_name }}</h5>
+              <ul class="list-unstyled">
+                <li><strong>Username:</strong> {{ customer.username }}</li>
+                <li><strong>Address:</strong> {{ customer.address }}</li>
+                <li><strong>Postal Code:</strong> {{ customer.postal_code }}</li>
+                <li><strong>Phone:</strong> {{ customer.phone }}</li>
+                <li><strong>Email:</strong> {{ customer.email }}</li>
+              </ul>
+              <div class="text-center mt-4">
+                <a href="{% url 'edit_customer' customer.username %}" class="btn btn-primary mr-2">Edit</a>
+                {% if customer.block == False %}
+                    <a href="{% url 'block_customer' customer.username %}" class="btn btn-danger">Block</a>
+                {% else %}
+                    <a href="{% url 'unblock_customer' customer.username %}" class="btn btn-success">Unblock</a>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}

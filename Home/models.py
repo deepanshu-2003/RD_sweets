@@ -5,13 +5,15 @@ from django.utils import timezone
 
 
 class Customer(models.Model):
+    profile_pic = models.ImageField(upload_to='profiles/', default = "profiles/default_profile_pic_128491.jpg")
     user=models.CharField(max_length = 50,default="admin")
-    phone = models.CharField(max_length = 10)
-    address = models.CharField(blank=True,max_length= 150)
+    phone = models.CharField(max_length = 10,blank=True)
+    address = models.CharField(max_length= 150,blank = True)
     postal_code = models.CharField(blank=True,max_length= 150)
     city = models.CharField(max_length= 150,blank=True)
     state = models.CharField(max_length= 150,blank=True)
     country = models.CharField(max_length= 150,blank=True)
+    block = models.BooleanField(default=False)
     
     def __str__(self):
         return self.user
